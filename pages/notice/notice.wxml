@@ -1,0 +1,124 @@
+<!--notice.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">通知公告</text>
+    <text class="page-subtitle">查看最新通知和公告</text>
+  </view>
+
+  <!-- 筛选区域 -->
+  <view class="filter-section">
+    <view class="filter-buttons">
+      <button class="filter-btn {{currentFilter === 'all' ? 'active' : ''}}" bindtap="changeFilter" data-filter="all">全部</button>
+      <button class="filter-btn {{currentFilter === 'unread' ? 'active' : ''}}" bindtap="changeFilter" data-filter="unread">未读</button>
+      <button class="filter-btn {{currentFilter === 'important' ? 'active' : ''}}" bindtap="changeFilter" data-filter="important">重要</button>
+      <button class="filter-btn {{currentFilter === 'course' ? 'active' : ''}}" bindtap="changeFilter" data-filter="course">课程通知</button>
+    </view>
+    
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索通知标题" bindinput="onSearchInput" value="{{searchKeyword}}" />
+      <image class="search-icon" src="/images/search.png"></image>
+    </view>
+  </view>
+
+  <!-- 发布通知按钮（教师） -->
+  <view class="add-notice-section" wx:if="{{userInfo.role === 'teacher'}}">
+    <button class="add-notice-btn" bindtap="showAddNoticeModal">
+      <image class="add-icon" src="/images/add.png"></image>
+      <text>发布新通知</text>
+    </button>
+  </view>
+
+  <!-- 通知列表 -->
+  <view class="notice-list">
+    <view wx:for="{{filteredNotices}}" wx:key="id" class="notice-card {{item.isRead ? '' : 'unread'}}" bindtap="viewNoticeDetail" data-id="{{item.id}}">
+      <!-- 通知头部 -->
+      <view class="notice-header">
+        <view class="notice-title-section">
+          <text class="notice-title">{{item.title}}</text>
+          <view class="notice-tags">
+            <text class="tag {{item.type}}">{{getTypeText(item.type)}}</text>
+            <text class="tag important" wx:if="{{item.isImportant}}">重要</text>
+            <text class="tag unread" wx:if="{{!item.isRead}}">未读</text>
+          </view>
+        </view>
+        <text class="notice-time">{{item.publishTime}}</text>
+      </view>
+
+      <!-- 通知内容预览 -->
+      <view class="notice-content">
+        <text class="content-preview">{{item.content}}</text>
+      </view>
+
+      <!-- 通知来源 -->
+      <view class="notice-footer">
+        <view class="notice-source">
+          <image class="source-icon" src="/images/sender.png"></image>
+          <text class="source-text">发布者：{{item.sender}}</text>
+          <text class="course-name" wx:if="{{item.courseName}}"> - {{item.courseName}}</text>
+        </view>
+        
+        <!-- 操作按钮（教师） -->
+        <view class="action-buttons" wx:if="{{userInfo.role === 'teacher'}}">
+          <button class="action-btn edit-btn" bindtap="editNotice" data-notice="{{item}}" catchtap="">编辑</button>
+          <button class="action-btn delete-btn" bindtap="deleteNotice" data-id="{{item.id}}" catchtap="">删除</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredNotices.length === 0}}">
+    <image class="empty-icon" src="/images/empty_notice.png"></image>
+    <text class="empty-text">暂无通知</text>
+    <text class="empty-subtext">{{userInfo.role === 'teacher' ? '点击上方按钮发布新通知' : '暂无新通知'}}</text>
+  </view>
+
+  <!-- 发布/编辑通知模态框 -->
+  <view class="modal {{showNoticeModal ? 'show' : ''}}" wx:if="{{userInfo.role === 'teacher'}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">{{editingNotice ? '编辑通知' : '发布通知'}}</text>
+        <button class="close-btn" bindtap="hideNoticeModal">×</button>
+      </view>
+      
+      <view class="modal-body">
+        <view class="form-group">
+          <text class="form-label">通知标题</text>
+          <input class="form-input" placeholder="请输入通知标题" value="{{noticeForm.title}}" bindinput="onFormInput" data-field="title" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">通知类型</text>
+          <picker class="form-picker" range="{{typeOptions}}" value="{{noticeForm.typeIndex}}" bindchange="onTypeChange">
+            <view class="picker-display">{{noticeForm.type || '选择通知类型'}}</view>
+          </picker>
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">关联课程</text>
+          <picker class="form-picker" range="{{courseOptions}}" value="{{noticeForm.courseIndex}}" bindchange="onCourseChange">
+            <view class="picker-display">{{noticeForm.courseName || '选择课程（可选）'}}</view>
+          </picker>
+        </view>
+        
+        <view class="form-group">
+          <view class="checkbox-group">
+            <checkbox class="form-checkbox" checked="{{noticeForm.isImportant}}" bindchange="onImportantChange" />
+            <text class="checkbox-label">标记为重要通知</text>
+          </view>
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">通知内容</text>
+          <textarea class="form-textarea" placeholder="请输入通知内容" value="{{noticeForm.content}}" bindinput="onFormInput" data-field="content" />
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" bindtap="hideNoticeModal">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="saveNotice">发布</button>
+      </view>
+    </view>
+  </view>
+</view>

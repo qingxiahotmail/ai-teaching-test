@@ -1,0 +1,140 @@
+<!--homework.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">作业管理</text>
+    <text class="page-subtitle">{{userInfo.role === 'teacher' ? '发布和管理作业' : '查看和提交作业'}}</text>
+  </view>
+
+  <!-- 搜索和筛选区域 -->
+  <view class="filter-section">
+    <view class="filter-row">
+      <picker class="course-picker" range="{{courseOptions}}" value="{{selectedCourseIndex}}" bindchange="onCourseChange">
+        <view class="picker-display">{{selectedCourse || '选择课程'}}</view>
+      </picker>
+      
+      <picker class="status-picker" range="{{statusOptions}}" value="{{selectedStatusIndex}}" bindchange="onStatusChange">
+        <view class="picker-display">{{selectedStatus || '作业状态'}}</view>
+      </picker>
+    </view>
+    
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索作业标题" bindinput="onSearchInput" value="{{searchKeyword}}" />
+      <image class="search-icon" src="/images/search.png"></image>
+    </view>
+  </view>
+
+  <!-- 添加作业按钮（教师） -->
+  <view class="add-homework-section" wx:if="{{userInfo.role === 'teacher'}}">
+    <button class="add-homework-btn" bindtap="showAddHomeworkModal">
+      <image class="add-icon" src="/images/add.png"></image>
+      <text>发布新作业</text>
+    </button>
+  </view>
+
+  <!-- 作业列表 -->
+  <view class="homework-list">
+    <view wx:for="{{filteredHomeworks}}" wx:key="id" class="homework-card">
+      <view class="homework-header">
+        <text class="homework-title">{{item.title}}</text>
+        <text class="homework-course">{{item.courseName}}</text>
+      </view>
+      
+      <view class="homework-info">
+        <view class="info-item">
+          <image class="info-icon" src="/images/calendar.png"></image>
+          <text>发布时间：{{item.publishTime}}</text>
+        </view>
+        <view class="info-item">
+          <image class="info-icon" src="/images/deadline.png"></image>
+          <text>截止时间：{{item.deadline}}</text>
+        </view>
+        <view class="info-item">
+          <image class="info-icon" src="/images/format.png"></image>
+          <text>提交格式：{{item.submitFormat}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.description}}">
+          <image class="info-icon" src="/images/description.png"></image>
+          <text class="description">{{item.description}}</text>
+        </view>
+      </view>
+
+      <view class="homework-status">
+        <text class="status-badge {{getStatusClass(item)}}">{{getStatusText(item)}}</text>
+        <text class="submission-count" wx:if="{{userInfo.role === 'teacher'}}">
+          已提交：{{item.submittedCount}}/{{item.totalStudents}}
+        </text>
+        <text class="submission-status" wx:if="{{userInfo.role === 'student'}}">
+          {{item.isSubmitted ? '已提交' : '未提交'}}
+        </text>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="action-buttons" wx:if="{{userInfo.role === 'teacher'}}">
+        <button class="action-btn edit-btn" bindtap="editHomework" data-homework="{{item}}">编辑</button>
+        <button class="action-btn delete-btn" bindtap="deleteHomework" data-id="{{item.id}}">删除</button>
+        <button class="action-btn detail-btn" bindtap="viewHomeworkDetail" data-id="{{item.id}}">详情</button>
+      </view>
+      
+      <view class="action-buttons" wx:if="{{userInfo.role === 'student'}}">
+        <button class="action-btn submit-btn" bindtap="submitHomework" data-id="{{item.id}}" wx:if="{{!item.isSubmitted}}">
+          提交作业
+        </button>
+        <button class="action-btn view-btn" bindtap="viewHomeworkDetail" data-id="{{item.id}}">查看详情</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredHomeworks.length === 0}}">
+    <image class="empty-icon" src="/images/empty_homework.png"></image>
+    <text class="empty-text">暂无作业数据</text>
+    <text class="empty-subtext">{{userInfo.role === 'teacher' ? '点击上方按钮发布新作业' : '暂无作业需要完成'}}</text>
+  </view>
+
+  <!-- 添加/编辑作业模态框 -->
+  <view class="modal {{showHomeworkModal ? 'show' : ''}}" wx:if="{{userInfo.role === 'teacher'}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">{{editingHomework ? '编辑作业' : '发布作业'}}</text>
+        <button class="close-btn" bindtap="hideHomeworkModal">×</button>
+      </view>
+      
+      <view class="modal-body">
+        <view class="form-group">
+          <text class="form-label">作业标题</text>
+          <input class="form-input" placeholder="请输入作业标题" value="{{homeworkForm.title}}" bindinput="onFormInput" data-field="title" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">选择课程</text>
+          <picker class="form-picker" range="{{courseOptions}}" value="{{homeworkForm.courseIndex}}" bindchange="onFormCourseChange">
+            <view class="picker-display">{{homeworkForm.courseName || '请选择课程'}}</view>
+          </picker>
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">截止时间</text>
+          <picker class="form-picker" mode="date" value="{{homeworkForm.deadlineDate}}" bindchange="onDateChange">
+            <view class="picker-display">{{homeworkForm.deadlineDate || '选择日期'}}</view>
+          </picker>
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">提交格式</text>
+          <input class="form-input" placeholder="如：PDF文档、压缩包等" value="{{homeworkForm.submitFormat}}" bindinput="onFormInput" data-field="submitFormat" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">作业描述</text>
+          <textarea class="form-textarea" placeholder="请输入作业要求和说明" value="{{homeworkForm.description}}" bindinput="onFormInput" data-field="description" />
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" bindtap="hideHomeworkModal">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="saveHomework">发布</button>
+      </view>
+    </view>
+  </view>
+</view>

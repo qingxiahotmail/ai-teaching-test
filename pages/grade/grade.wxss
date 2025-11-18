@@ -1,0 +1,346 @@
+/* grade.wxss */
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20rpx;
+}
+
+/* 页面标题 */
+.page-header {
+  margin-bottom: 30rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 筛选区域 */
+.filter-section {
+  margin-bottom: 30rpx;
+}
+
+.filter-row {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.course-picker, .semester-picker {
+  flex: 1;
+  background: white;
+  border: 2rpx solid #e8e8e8;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  height: 80rpx;
+  background: white;
+  border-radius: 15rpx;
+  padding: 0 80rpx 0 30rpx;
+  font-size: 28rpx;
+  border: 2rpx solid #e8e8e8;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  right: 30rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 统计概览 */
+.stats-overview {
+  margin-bottom: 30rpx;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.08);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1890ff;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 个人成绩概览 */
+.personal-stats {
+  margin-bottom: 30rpx;
+}
+
+.personal-card {
+  background: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+}
+
+.score-display {
+  text-align: center;
+  flex: 1;
+}
+
+.score-value {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #52c41a;
+  margin-bottom: 8rpx;
+}
+
+.score-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.score-details {
+  flex: 2;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.detail-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.detail-value {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 成绩表格 */
+.grade-table {
+  background: white;
+  border-radius: 15rpx;
+  overflow: hidden;
+  box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.08);
+}
+
+.table-header {
+  display: flex;
+  background: #f0f2f5;
+  padding: 20rpx;
+  border-bottom: 2rpx solid #e8e8e8;
+}
+
+.header-cell {
+  flex: 1;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+.table-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  flex: 1;
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-input {
+  width: 80rpx;
+  height: 50rpx;
+  border: 1rpx solid #e8e8e8;
+  border-radius: 5rpx;
+  text-align: center;
+  font-size: 24rpx;
+}
+
+.total-score {
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.save-btn {
+  background: #52c41a;
+  color: white;
+  border: none;
+  border-radius: 5rpx;
+  padding: 10rpx 15rpx;
+  font-size: 22rpx;
+}
+
+.save-btn::after {
+  border: none;
+}
+
+/* 个人成绩卡片 */
+.personal-grade-card {
+  background: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.08);
+}
+
+.grade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.course-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.semester {
+  font-size: 22rpx;
+  color: #666;
+  background: #f0f2f5;
+  padding: 6rpx 12rpx;
+  border-radius: 10rpx;
+}
+
+.grade-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.detail-value {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.total-row {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 15rpx;
+}
+
+.total {
+  font-weight: bold;
+  color: #1890ff;
+  font-size: 28rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  display: block;
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.empty-subtext {
+  display: block;
+  font-size: 24rpx;
+  color: #ccc;
+}
+
+/* 批量操作 */
+.batch-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 30rpx;
+}
+
+.batch-btn {
+  flex: 1;
+  border: none;
+  border-radius: 10rpx;
+  padding: 25rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+}
+
+.batch-btn::after {
+  border: none;
+}
+
+.import-btn {
+  background: #1890ff;
+  color: white;
+}
+
+.export-btn {
+  background: #52c41a;
+  color: white;
+}

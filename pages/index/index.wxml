@@ -1,0 +1,103 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- 顶部欢迎区域 -->
+  <view class="header">
+    <view class="welcome-text">
+      <text class="welcome-title">欢迎使用课程助教</text>
+      <text class="welcome-subtitle">专业的教学辅助工具</text>
+    </view>
+    <image class="logo" src="/images/logo.png" mode="aspectFit"></image>
+  </view>
+
+  <!-- 登录状态区域 -->
+  <view class="login-section" wx:if="{{!isLogin}}">
+    <view class="login-card">
+      <text class="login-title">请选择身份登录</text>
+      <view class="role-buttons">
+        <button class="role-btn teacher-btn" bindtap="loginAsTeacher">
+          <image class="role-icon" src="/images/teacher.png"></image>
+          <text class="role-text">教师登录</text>
+        </button>
+        <button class="role-btn student-btn" bindtap="loginAsStudent">
+          <image class="role-icon" src="/images/student.png"></image>
+          <text class="role-text">学生登录</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 已登录状态区域 -->
+  <view class="logged-in-section" wx:if="{{isLogin}}">
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <view class="user-info">
+        <image class="avatar" src="{{userInfo.avatar || '/images/default_avatar.png'}}"></image>
+        <view class="user-details">
+          <text class="username">{{userInfo.name}}</text>
+          <text class="role">{{userInfo.role === 'teacher' ? '教师' : '学生'}}</text>
+        </view>
+      </view>
+      <button class="logout-btn" bindtap="logout">退出登录</button>
+    </view>
+
+    <!-- 功能卡片 -->
+    <view class="feature-grid">
+      <navigator class="feature-card" url="/pages/course/course" wx:if="{{userInfo.role === 'teacher'}}">
+        <image class="feature-icon" src="/images/course_icon.png"></image>
+        <text class="feature-title">课程管理</text>
+        <text class="feature-desc">管理您的课程信息</text>
+      </navigator>
+
+      <navigator class="feature-card" url="/pages/student/student" wx:if="{{userInfo.role === 'teacher'}}">
+        <image class="feature-icon" src="/images/student_icon.png"></image>
+        <text class="feature-title">学生管理</text>
+        <text class="feature-desc">查看和管理学生信息</text>
+      </navigator>
+
+      <navigator class="feature-card" url="/pages/homework/homework">
+        <image class="feature-icon" src="/images/homework_icon.png"></image>
+        <text class="feature-title">作业管理</text>
+        <text class="feature-desc">{{userInfo.role === 'teacher' ? '发布和管理作业' : '查看和提交作业'}}</text>
+      </navigator>
+
+      <navigator class="feature-card" url="/pages/grade/grade">
+        <image class="feature-icon" src="/images/grade_icon.png"></image>
+        <text class="feature-title">成绩统计</text>
+        <text class="feature-desc">{{userInfo.role === 'teacher' ? '录入和查看成绩' : '查看个人成绩'}}</text>
+      </navigator>
+
+      <navigator class="feature-card" url="/pages/notice/notice">
+        <image class="feature-icon" src="/images/notice_icon.png"></image>
+        <text class="feature-title">通知公告</text>
+        <text class="feature-desc">查看最新通知</text>
+      </navigator>
+
+      <navigator class="feature-card" url="/pages/profile/profile">
+        <image class="feature-icon" src="/images/profile_icon.png"></image>
+        <text class="feature-title">个人中心</text>
+        <text class="feature-desc">个人信息设置</text>
+      </navigator>
+    </view>
+
+    <!-- 数据统计卡片 -->
+    <view class="stats-section" wx:if="{{userInfo.role === 'teacher'}}">
+      <view class="stats-card">
+        <text class="stats-title">今日数据</text>
+        <view class="stats-row">
+          <view class="stat-item">
+            <text class="stat-value">{{stats.courseCount || 0}}</text>
+            <text class="stat-label">课程数</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{stats.studentCount || 0}}</text>
+            <text class="stat-label">学生数</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{stats.homeworkCount || 0}}</text>
+            <text class="stat-label">作业数</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

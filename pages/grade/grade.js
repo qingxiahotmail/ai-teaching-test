@@ -1,0 +1,310 @@
+// grade.js
+const app = getApp()
+
+Page({
+  data: {
+    userInfo: null,
+    grades: [],
+    filteredGrades: [],
+    personalGrades: [],
+    searchKeyword: '',
+    selectedCourse: '',
+    selectedCourseIndex: 0,
+    selectedSemester: '',
+    selectedSemesterIndex: 0,
+    stats: {
+      averageScore: 0,
+      highestScore: 0,
+      passRate: 0,
+      totalStudents: 0
+    },
+    personalScore: 0,
+    personalRank: '--',
+    courseAverage: 0,
+    courseOptions: ['全部课程', '计算机科学导论', '数据结构与算法', '软件工程'],
+    semesterOptions: ['全部学期', '2024秋季学期', '2024春季学期', '2023秋季学期']
+  },
+
+  onLoad() {
+    this.setData({
+      userInfo: app.globalData.userInfo
+    })
+    this.loadGrades()
+  },
+
+  onShow() {
+    this.setData({
+      userInfo: app.globalData.userInfo
+    })
+  },
+
+  // 加载成绩数据
+  loadGrades() {
+    if (this.data.userInfo.role === 'teacher') {
+      // 教师视图：所有学生成绩
+      const mockGrades = [
+        {
+          id: '1',
+          studentId: '20240001',
+          studentName: '张三',
+          courseName: '计算机科学导论',
+          semester: '2024秋季学期',
+          usualScore: '85',
+          finalScore: '90',
+          totalScore: '88'
+        },
+        {
+          id: '2',
+          studentId: '20240002',
+          studentName: '李四',
+          courseName: '计算机科学导论',
+          semester: '2024秋季学期',
+          usualScore: '78',
+          finalScore: '85',
+          totalScore: '82'
+        },
+        {
+          id: '3',
+          studentId: '20240003',
+          studentName: '王五',
+          courseName: '数据结构与算法',
+          semester: '2024秋季学期',
+          usualScore: '92',
+          finalScore: '88',
+          totalScore: '90'
+        },
+        {
+          id: '4',
+          studentId: '20240004',
+          studentName: '赵六',
+          courseName: '数据结构与算法',
+          semester: '2024秋季学期',
+          usualScore: '',
+          finalScore: '',
+          totalScore: ''
+        }
+      ]
+
+      this.setData({
+        grades: mockGrades,
+        filteredGrades: mockGrades
+      })
+
+      this.calculateStats()
+    } else {
+      // 学生视图：个人成绩
+      const mockPersonalGrades = [
+        {
+          id: '1',
+          courseName: '计算机科学导论',
+          semester: '2024秋季学期',
+          usualScore: '85',
+          finalScore: '90',
+          totalScore: '88'
+        },
+        {
+          id: '2',
+          courseName: '数据结构与算法',
+          semester: '2024秋季学期',
+          usualScore: '92',
+          finalScore: '88',
+          totalScore: '90'
+        },
+        {
+          id: '3',
+          courseName: '软件工程',
+          semester: '2024秋季学期',
+          usualScore: '',
+          finalScore: '',
+          totalScore: ''
+        }
+      ]
+
+      this.setData({
+        personalGrades: mockPersonalGrades
+      })
+
+      this.calculatePersonalStats()
+    }
+  },
+
+  // 计算统计信息（教师）
+  calculateStats() {
+    const { grades } = this.data
+    
+    const validGrades = grades.filter(grade => grade.totalScore && !isNaN(grade.totalScore))
+    
+    if (validGrades.length > 0) {
+      const scores = validGrades.map(grade => parseInt(grade.totalScore))
+      const averageScore = (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(1)
+      const highestScore = Math.max(...scores)
+      const passRate = ((scores.filter(score => score >= 60).length / scores.length) * 100).toFixed(1)
+      
+      this.setData({
+        stats: {
+          averageScore: averageScore,
+          highestScore: highestScore,
+          passRate: passRate,
+          totalStudents: grades.length
+        }
+      })
+    }
+  },
+
+  // 计算个人统计信息（学生）
+  calculatePersonalStats() {
+    const { personalGrades } = this.data
+    
+    const validGrades = personalGrades.filter(grade => grade.totalScore && !isNaN(grade.totalScore))
+    
+    if (validGrades.length > 0) {
+      const totalScore = validGrades.reduce((sum, grade) => sum + parseInt(grade.totalScore), 0)
+      const averageScore = (totalScore / validGrades.length).toFixed(1)
+      
+      this.setData({
+        personalScore: averageScore,
+        personalRank: validGrades.length > 1 ? `${validGrades.length}名中第2名` : '--',
+        courseAverage: '85.5'
+      })
+    }
+  },
+
+  // 课程选择
+  onCourseChange(e) {
+    const index = parseInt(e.detail.value)
+    const course = this.data.courseOptions[index]
+    
+    this.setData({
+      selectedCourseIndex: index,
+      selectedCourse: index === 0 ? '' : course
+    })
+    
+    this.filterGrades()
+  },
+
+  // 学期选择
+  onSemesterChange(e) {
+    const index = parseInt(e.detail.value)
+    const semester = this.data.semesterOptions[index]
+    
+    this.setData({
+      selectedSemesterIndex: index,
+      selectedSemester: index === 0 ? '' : semester
+    })
+    
+    this.filterGrades()
+  },
+
+  // 搜索输入
+  onSearchInput(e) {
+    const keyword = e.detail.value
+    this.setData({
+      searchKeyword: keyword
+    })
+    this.filterGrades()
+  },
+
+  // 筛选成绩
+  filterGrades() {
+    const { grades, searchKeyword, selectedCourse, selectedSemester } = this.data
+    
+    let filtered = grades.filter(grade => {
+      // 搜索筛选
+      const matchSearch = searchKeyword === '' || 
+        grade.studentName.includes(searchKeyword) ||
+        grade.studentId.includes(searchKeyword)
+      
+      // 课程筛选
+      const matchCourse = selectedCourse === '' || grade.courseName === selectedCourse
+      
+      // 学期筛选
+      const matchSemester = selectedSemester === '' || grade.semester === selectedSemester
+      
+      return matchSearch && matchCourse && matchSemester
+    })
+
+    this.setData({
+      filteredGrades: filtered
+    })
+  },
+
+  // 成绩输入
+  onScoreInput(e) {
+    const id = e.currentTarget.dataset.id
+    const type = e.currentTarget.dataset.type
+    const value = e.detail.value
+    
+    // 更新成绩数据
+    const updatedGrades = this.data.grades.map(grade => {
+      if (grade.id === id) {
+        const updatedGrade = { ...grade }
+        updatedGrade[type + 'Score'] = value
+        
+        // 自动计算总成绩（平时成绩占40%，期末成绩占60%）
+        if (updatedGrade.usualScore && updatedGrade.finalScore) {
+          const usual = parseInt(updatedGrade.usualScore) || 0
+          const final = parseInt(updatedGrade.finalScore) || 0
+          updatedGrade.totalScore = Math.round(usual * 0.4 + final * 0.6).toString()
+        } else {
+          updatedGrade.totalScore = ''
+        }
+        
+        return updatedGrade
+      }
+      return grade
+    })
+
+    this.setData({
+      grades: updatedGrades
+    })
+    
+    this.filterGrades()
+  },
+
+  // 保存成绩
+  saveGrade(e) {
+    const gradeId = e.currentTarget.dataset.id
+    const grade = this.data.grades.find(g => g.id === gradeId)
+    
+    if (!grade.usualScore || !grade.finalScore) {
+      wx.showToast({
+        title: '请填写完整成绩',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 模拟保存成绩
+    wx.showLoading({
+      title: '保存中...'
+    })
+
+    setTimeout(() => {
+      wx.hideLoading()
+      wx.showToast({
+        title: '成绩保存成功',
+        icon: 'success'
+      })
+      
+      this.calculateStats()
+    }, 1000)
+  },
+
+  // 导入成绩
+  importGrades() {
+    wx.showModal({
+      title: '导入成绩',
+      content: '此功能需要从Excel文件导入成绩数据，当前版本暂不支持文件导入。',
+      showCancel: false
+    })
+  },
+
+  // 导出成绩
+  exportGrades() {
+    wx.showModal({
+      title: '导出成绩',
+      content: '此功能可以将成绩数据导出为Excel文件，当前版本暂不支持文件导出。',
+      showCancel: false
+    })
+  }
+})

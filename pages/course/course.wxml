@@ -1,0 +1,128 @@
+<!--course.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">课程管理</text>
+    <text class="page-subtitle">管理您的课程信息</text>
+  </view>
+
+  <!-- 搜索和筛选区域 -->
+  <view class="search-section">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索课程名称或编号" bindinput="onSearchInput" value="{{searchKeyword}}" />
+      <image class="search-icon" src="/images/search.png"></image>
+    </view>
+    <view class="filter-buttons">
+      <button class="filter-btn {{currentFilter === 'all' ? 'active' : ''}}" bindtap="changeFilter" data-filter="all">全部</button>
+      <button class="filter-btn {{currentFilter === 'active' ? 'active' : ''}}" bindtap="changeFilter" data-filter="active">进行中</button>
+      <button class="filter-btn {{currentFilter === 'ended' ? 'active' : ''}}" bindtap="changeFilter" data-filter="ended">已结束</button>
+    </view>
+  </view>
+
+  <!-- 添加课程按钮 -->
+  <view class="add-course-section" wx:if="{{userInfo.role === 'teacher'}}">
+    <button class="add-course-btn" bindtap="showAddCourseModal">
+      <image class="add-icon" src="/images/add.png"></image>
+      <text>添加新课程</text>
+    </button>
+  </view>
+
+  <!-- 课程列表 -->
+  <view class="course-list">
+    <view wx:for="{{filteredCourses}}" wx:key="id" class="course-card">
+      <view class="course-header">
+        <text class="course-name">{{item.name}}</text>
+        <text class="course-code">{{item.code}}</text>
+      </view>
+      
+      <view class="course-info">
+        <view class="info-item">
+          <image class="info-icon" src="/images/calendar.png"></image>
+          <text>{{item.semester}} {{item.year}}</text>
+        </view>
+        <view class="info-item">
+          <image class="info-icon" src="/images/class.png"></image>
+          <text>{{item.studentCount}} 名学生</text>
+        </view>
+        <view class="info-item">
+          <image class="info-icon" src="/images/time.png"></image>
+          <text>{{item.schedule}}</text>
+        </view>
+      </view>
+
+      <view class="course-status">
+        <text class="status-badge {{item.status === 'active' ? 'active' : 'ended'}}">
+          {{item.status === 'active' ? '进行中' : '已结束'}}
+        </text>
+        <text class="credit">{{item.credits}} 学分</text>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="action-buttons" wx:if="{{userInfo.role === 'teacher'}}">
+        <button class="action-btn edit-btn" bindtap="editCourse" data-course="{{item}}">编辑</button>
+        <button class="action-btn delete-btn" bindtap="deleteCourse" data-id="{{item.id}}">删除</button>
+        <button class="action-btn detail-btn" bindtap="viewCourseDetail" data-id="{{item.id}}">详情</button>
+      </view>
+      
+      <view class="action-buttons" wx:if="{{userInfo.role === 'student'}}">
+        <button class="action-btn detail-btn" bindtap="viewCourseDetail" data-id="{{item.id}}">查看详情</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredCourses.length === 0}}">
+    <image class="empty-icon" src="/images/empty_course.png"></image>
+    <text class="empty-text">暂无课程数据</text>
+    <text class="empty-subtext">点击上方按钮添加新课程</text>
+  </view>
+
+  <!-- 添加/编辑课程模态框 -->
+  <view class="modal {{showCourseModal ? 'show' : ''}}" wx:if="{{userInfo.role === 'teacher'}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">{{editingCourse ? '编辑课程' : '添加课程'}}</text>
+        <button class="close-btn" bindtap="hideCourseModal">×</button>
+      </view>
+      
+      <view class="modal-body">
+        <view class="form-group">
+          <text class="form-label">课程名称</text>
+          <input class="form-input" placeholder="请输入课程名称" value="{{courseForm.name}}" bindinput="onFormInput" data-field="name" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">课程编号</text>
+          <input class="form-input" placeholder="请输入课程编号" value="{{courseForm.code}}" bindinput="onFormInput" data-field="code" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">学分</text>
+          <input class="form-input" type="number" placeholder="请输入学分" value="{{courseForm.credits}}" bindinput="onFormInput" data-field="credits" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">学期</text>
+          <picker class="form-picker" range="{{semesterOptions}}" value="{{courseForm.semesterIndex}}" bindchange="onSemesterChange">
+            <view class="picker-display">{{courseForm.semester || '请选择学期'}}</view>
+          </picker>
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">学年</text>
+          <input class="form-input" placeholder="请输入学年（如：2024-2025）" value="{{courseForm.year}}" bindinput="onFormInput" data-field="year" />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">上课时间</text>
+          <input class="form-input" placeholder="请输入上课时间（如：周一 1-2节）" value="{{courseForm.schedule}}" bindinput="onFormInput" data-field="schedule" />
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" bindtap="hideCourseModal">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="saveCourse">保存</button>
+      </view>
+    </view>
+  </view>
+</view>
