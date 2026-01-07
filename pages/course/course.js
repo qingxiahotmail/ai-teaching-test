@@ -3,7 +3,6 @@ const app = getApp()
 
 Page({
   data: {
-    userInfo: null,
     courses: [],
     filteredCourses: [],
     searchKeyword: '',
@@ -23,21 +22,60 @@ Page({
   },
 
   onLoad() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
     this.loadCourses()
   },
 
   onShow() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
+    this.loadCourses()
   },
 
   // 加载课程数据
   loadCourses() {
-    // 模拟课程数据
+    // 从本地存储读取课程数据
+    try {
+      const savedCourses = wx.getStorageSync('courses')
+      if (savedCourses && savedCourses.length > 0) {
+        // 转换数据格式以适配课程资源页面
+        const convertedCourses = savedCourses.map(course => {
+          // 读取该课程资料
+          let materials = []
+          try {
+            const key = `course_materials_${course.id}`
+            materials = wx.getStorageSync(key) || []
+          } catch (e) {
+            console.error('读取课程资料失败:', e)
+          }
+
+          return {
+            id: course.id.toString(),
+            name: course.name,
+            code: course.category || 'COURSE',
+            credits: 3,
+            semester: '秋季学期',
+            year: '2024-2025',
+            schedule: '',
+            studentCount: 0,
+            status: course.status,
+            teacher: '教师',
+            description: course.description,
+            tags: course.tags || [],
+            category: course.category,
+            materials: materials, // 添加课程资料
+            materialsCount: materials.length // 资料数量
+          }
+        })
+
+        this.setData({
+          courses: convertedCourses,
+          filteredCourses: convertedCourses
+        })
+        return
+      }
+    } catch (e) {
+      console.error('读取课程数据失败:', e)
+    }
+
+    // 使用默认数据
     const mockCourses = [
       {
         id: '1',
@@ -80,6 +118,47 @@ Page({
     this.setData({
       courses: mockCourses,
       filteredCourses: mockCourses
+    })
+  },
+
+  // 打开课程资料链接
+  openMaterialLink(e) {
+    const material = e.currentTarget.dataset.material
+    if (!material || !material.url) {
+      wx.showToast({
+        title: '暂无链接',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 检查是否为完整URL
+    let url = material.url.trim()
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      wx.showToast({
+        title: '无效的链接地址',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.showModal({
+      title: '打开链接',
+      content: `确定要打开以下链接吗？\n\n${url}`,
+      success: (res) => {
+        if (res.confirm) {
+          wx.setClipboardData({
+            data: url,
+            success: () => {
+              wx.showModal({
+                title: '提示',
+                content: '链接已复制到剪贴板\n请在浏览器中打开',
+                showCancel: false
+              })
+            }
+          })
+        }
+      }
     })
   },
 
@@ -237,7 +316,7 @@ Page({
         schedule: courseForm.schedule,
         studentCount: 0,
         status: 'active',
-        teacher: this.data.userInfo.name
+        teacher: '教师'
       }
 
       this.setData({

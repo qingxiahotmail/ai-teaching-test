@@ -1,14 +1,12 @@
 // notice.js
-const app = getApp()
-
 Page({
   data: {
-    userInfo: null,
     notices: [],
     filteredNotices: [],
     searchKeyword: '',
     currentFilter: 'all',
     showNoticeModal: false,
+    showAIModal: false,
     editingNotice: null,
     noticeForm: {
       title: '',
@@ -16,24 +14,22 @@ Page({
       typeIndex: 0,
       courseName: '',
       courseIndex: 0,
-      isImportant: false,
+      isQuestion: false,
       content: ''
     },
-    typeOptions: ['系统通知', '课程通知', '作业提醒', '成绩发布'],
-    courseOptions: ['不关联课程', '计算机科学导论', '数据结构与算法', '软件工程']
+    typeOptions: ['课程资源', '学习问答', '作业辅导', '知识点讲解'],
+    courseOptions: ['不关联课程', '计算机科学导论', '数据结构与算法', '软件工程'],
+    aiChatHistory: [],
+    aiInput: '',
+    aiLoading: false
   },
 
   onLoad() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
     this.loadNotices()
   },
 
   onShow() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
+    this.loadNotices()
   },
 
   // 加载通知数据
@@ -42,46 +38,42 @@ Page({
     const mockNotices = [
       {
         id: '1',
-        title: '关于期末考试的安排通知',
+        title: '如何理解算法的时间复杂度？',
         type: 'course',
-        courseName: '计算机科学导论',
-        content: '本学期期末考试将于2024年12月20日举行，请同学们提前做好准备。考试地点为教学楼A301。',
-        sender: '张老师',
+        courseName: '数据结构与算法',
+        content: '时间复杂度是衡量算法效率的重要指标。常见的时间复杂度有O(1)、O(log n)、O(n)、O(n log n)、O(n²)等。可以通过分析代码的循环次数来计算时间复杂度。',
         publishTime: '2024-11-15 10:30',
-        isImportant: true,
+        isQuestion: true,
         isRead: false
       },
       {
         id: '2',
-        title: '系统维护通知',
+        title: '课程资源：数据结构学习资料',
         type: 'system',
         courseName: '',
-        content: '为了提供更好的服务，本系统将于2024年11月20日 02:00-04:00进行维护，期间可能无法正常使用。',
-        sender: '系统管理员',
+        content: '为大家整理了数据结构与算法的学习资料，包括经典教材PDF、在线课程链接、练习题库等，欢迎下载学习。',
         publishTime: '2024-11-14 15:20',
-        isImportant: false,
+        isQuestion: false,
         isRead: true
       },
       {
         id: '3',
-        title: '作业提交截止提醒',
+        title: '递归算法的实现要点',
         type: 'course',
         courseName: '数据结构与算法',
-        content: '实验二：数据结构实现的提交截止时间为2024年11月25日 23:59，请尚未提交的同学抓紧时间。',
-        sender: '李老师',
+        content: '递归算法需要明确两个要素：1）终止条件；2）递归过程。常见应用场景包括：树的遍历、快速排序、归并排序等。',
         publishTime: '2024-11-14 09:15',
-        isImportant: false,
+        isQuestion: false,
         isRead: false
       },
       {
         id: '4',
-        title: '期中成绩已发布',
+        title: '软件需求分析的关键步骤',
         type: 'course',
         courseName: '软件工程',
-        content: '期中考试成绩已发布，请同学们登录系统查看。如有疑问请及时联系任课教师。',
-        sender: '王老师',
+        content: '需求分析包括需求获取、需求分析、需求规格说明、需求验证四个阶段。常用的需求获取方法有访谈、问卷调查、观察、原型法等。',
         publishTime: '2024-11-13 16:45',
-        isImportant: true,
+        isQuestion: true,
         isRead: true
       }
     ]
@@ -95,12 +87,12 @@ Page({
   // 获取类型文本
   getTypeText(type) {
     const typeMap = {
-      'system': '系统通知',
-      'course': '课程通知',
-      'homework': '作业提醒',
-      'grade': '成绩发布'
+      'system': '课程资源',
+      'course': '学习问答',
+      'homework': '作业辅导',
+      'grade': '知识点讲解'
     }
-    return typeMap[type] || '通知'
+    return typeMap[type] || '学习资料'
   },
 
   // 筛选切换
@@ -135,8 +127,8 @@ Page({
       let matchFilter = true
       if (currentFilter === 'unread') {
         matchFilter = !notice.isRead
-      } else if (currentFilter === 'important') {
-        matchFilter = notice.isImportant
+      } else if (currentFilter === 'question') {
+        matchFilter = notice.isQuestion
       } else if (currentFilter === 'course') {
         matchFilter = notice.type === 'course'
       }
@@ -184,15 +176,15 @@ Page({
     this.setData({
       showNoticeModal: true,
       editingNotice: null,
-      noticeForm: {
-        title: '',
-        type: '',
-        typeIndex: 0,
-        courseName: '',
-        courseIndex: 0,
-        isImportant: false,
-        content: ''
-      }
+  noticeForm: {
+      title: '',
+      type: '',
+      typeIndex: 0,
+      courseName: '',
+      courseIndex: 0,
+      isQuestion: false,
+      content: ''
+    }
     })
   },
 
@@ -235,10 +227,10 @@ Page({
     })
   },
 
-  // 重要通知切换
-  onImportantChange(e) {
+  // 问题标记切换
+  onQuestionChange(e) {
     this.setData({
-      'noticeForm.isImportant': e.detail.value.length > 0
+      'noticeForm.isQuestion': e.detail.value.length > 0
     })
   },
 
@@ -255,7 +247,7 @@ Page({
         typeIndex: this.data.typeOptions.indexOf(this.getTypeText(notice.type)),
         courseName: notice.courseName,
         courseIndex: notice.courseName ? this.data.courseOptions.indexOf(notice.courseName) : 0,
-        isImportant: notice.isImportant,
+        isQuestion: notice.isQuestion,
         content: notice.content
       }
     })
@@ -281,11 +273,11 @@ Page({
           return {
             ...notice,
             title: noticeForm.title,
-            type: noticeForm.type.toLowerCase(),
-            courseName: noticeForm.courseName,
-            isImportant: noticeForm.isImportant,
-            content: noticeForm.content,
-            publishTime: new Date().toLocaleString('zh-CN', {
+        type: noticeForm.type.toLowerCase(),
+        courseName: noticeForm.courseName,
+        isQuestion: noticeForm.isQuestion,
+        content: noticeForm.content,
+        publishTime: new Date().toLocaleString('zh-CN', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
@@ -313,7 +305,6 @@ Page({
         type: noticeForm.type.toLowerCase(),
         courseName: noticeForm.courseName,
         content: noticeForm.content,
-        sender: this.data.userInfo.name,
         publishTime: new Date().toLocaleString('zh-CN', {
           year: 'numeric',
           month: '2-digit',
@@ -321,7 +312,7 @@ Page({
           hour: '2-digit',
           minute: '2-digit'
         }),
-        isImportant: noticeForm.isImportant,
+        isQuestion: noticeForm.isQuestion,
         isRead: false
       }
 
@@ -358,6 +349,114 @@ Page({
           
           wx.showToast({
             title: '删除成功',
+            icon: 'success'
+          })
+        }
+      }
+    })
+  },
+
+  // 显示AI助手
+  showAIAssistant() {
+    this.setData({ showAIModal: true })
+  },
+
+  // 隐藏AI助手
+  hideAIAssistant() {
+    this.setData({ showAIModal: false })
+  },
+
+  // AI输入
+  onAIInput(e) {
+    this.setData({
+      aiInput: e.detail.value
+    })
+  },
+
+  // 发送AI消息
+  sendAIMessage() {
+    const { aiInput, aiChatHistory } = this.data
+    
+    if (!aiInput.trim()) {
+      wx.showToast({
+        title: '请输入问题',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 添加用户消息
+    const newHistory = [...aiChatHistory, {
+      type: 'user',
+      content: aiInput,
+      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    }]
+
+    this.setData({
+      aiChatHistory: newHistory,
+      aiInput: '',
+      aiLoading: true
+    })
+
+    // 模拟AI响应
+    setTimeout(() => {
+      const aiResponse = this.generateAIResponse(aiInput)
+      const updatedHistory = [...newHistory, {
+        type: 'ai',
+        content: aiResponse,
+        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+      }]
+
+      this.setData({
+        aiChatHistory: updatedHistory,
+        aiLoading: false
+      })
+    }, 1500)
+  },
+
+  // 生成AI响应（模拟）
+  generateAIResponse(question) {
+    const responses = [
+      '这是一个很好的问题！根据我的知识库，关于这个话题，我可以为您提供以下建议：首先，建议您从基础概念开始理解，然后通过实践来巩固知识。',
+      '您的问题涉及到计算机科学的核心概念。我建议您可以先阅读相关教材的第一章，再做一些练习题来加深理解。',
+      '这是一个常见的学习问题。我建议您可以从以下方面入手：1）理解基本原理；2）多做实践练习；3）与同学讨论交流。',
+      '关于这个问题，我建议您可以从多个角度来思考。首先理解问题的本质，然后尝试不同的解决方案，最后总结经验教训。',
+      '非常好的提问！在学习过程中，遇到困惑是正常的。建议您：1）查阅相关资料；2）向老师请教；3）和同学讨论。坚持就是胜利！',
+      '这个问题确实有挑战性。根据我的理解，您可以从以下几个步骤来解决：分析问题、设计方案、实施验证、总结经验。'
+    ]
+
+    const keywords = [
+      { key: '算法', response: '算法是解决问题的方法和步骤。常见的时间复杂度有O(1)、O(log n)、O(n)、O(n log n)、O(n²)等。建议您从基础算法开始学习，如排序、搜索等。' },
+      { key: '数据结构', response: '数据结构是计算机存储、组织数据的方式。常见的数据结构包括：数组、链表、栈、队列、树、图等。选择合适的数据结构对程序性能至关重要。' },
+      { key: '递归', response: '递归是一种函数调用自身的编程技巧。使用递归需要明确两个要素：1）终止条件；2）递归过程。常见应用包括树的遍历、快速排序等。' },
+      { key: '时间复杂度', response: '时间复杂度是衡量算法执行时间随输入规模增长的度量。常用大O表示法表示，如O(n)表示线性时间复杂度。' },
+      { key: '排序', response: '排序是计算机科学中的基本问题。常见的排序算法包括：冒泡排序、选择排序、插入排序、快速排序、归并排序等。其中快速排序和归并排序是高效的排序算法。' }
+    ]
+
+    // 检查关键词匹配
+    for (const item of keywords) {
+      if (question.includes(item.key)) {
+        return item.response
+      }
+    }
+
+    // 随机返回通用响应
+    const randomIndex = Math.floor(Math.random() * responses.length)
+    return responses[randomIndex]
+  },
+
+  // 清空AI聊天记录
+  clearAIChat() {
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空所有聊天记录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            aiChatHistory: []
+          })
+          wx.showToast({
+            title: '已清空',
             icon: 'success'
           })
         }

@@ -167,6 +167,58 @@
 }
 
 .info-icon {
+  margin-right: 10rpx;
+  font-size: 24rpx;
+}
+
+/* 课程资料 */
+.course-materials {
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.materials-title {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.materials-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.material-item-small {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 16rpx;
+  background: white;
+  border-radius: 8rpx;
+  border: 1rpx solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.material-item-small:active {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  transform: scale(0.98);
+}
+
+.material-icon-small {
+  font-size: 20rpx;
+}
+
+.material-name-small {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.info-icon {
   width: 30rpx;
   height: 30rpx;
   margin-right: 15rpx;

@@ -21,6 +21,18 @@
     </view>
   </view>
 
+  <!-- AI助手入口 -->
+  <view class="ai-assistant-entry">
+    <button class="ai-entry-btn" bindtap="showAIAssistant">
+      <image class="ai-icon" src="/images/tab_homework.png"></image>
+      <view class="ai-entry-info">
+        <text class="ai-entry-title">AI学习助手</text>
+        <text class="ai-entry-desc">智能问答，随时解答</text>
+      </view>
+      <text class="ai-entry-arrow">›</text>
+    </button>
+  </view>
+
   <!-- 发布通知按钮（教师） -->
   <view class="add-notice-section" wx:if="{{userInfo.role === 'teacher'}}">
     <button class="add-notice-btn" bindtap="showAddNoticeModal">
@@ -118,6 +130,85 @@
       <view class="modal-footer">
         <button class="modal-btn cancel-btn" bindtap="hideNoticeModal">取消</button>
         <button class="modal-btn confirm-btn" bindtap="saveNotice">发布</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI助手模态框 -->
+  <view class="ai-modal {{showAIModal ? 'show' : ''}}">
+    <view class="ai-modal-content">
+      <!-- AI助手头部 -->
+      <view class="ai-modal-header">
+        <view class="ai-header-left">
+          <image class="ai-avatar" src="/images/tab_homework.png"></image>
+          <view class="ai-header-info">
+            <text class="ai-name">AI学习助手</text>
+            <text class="ai-status">免费使用 · 在线</text>
+          </view>
+        </view>
+        <view class="ai-header-actions">
+          <button class="ai-action-btn" bindtap="clearAIChat">清空</button>
+          <button class="ai-close-btn" bindtap="hideAIAssistant">×</button>
+        </view>
+      </view>
+
+      <!-- 聊天内容区域 -->
+      <scroll-view class="ai-chat-content" scroll-y scroll-into-view="chat-bottom" scroll-with-animation>
+        <view class="ai-welcome" wx:if="{{aiChatHistory.length === 0}}">
+          <image class="welcome-icon" src="/images/tab_homework.png"></image>
+          <text class="welcome-text">你好！我是AI学习助手</text>
+          <text class="welcome-subtext">我可以帮您解答学习问题、提供学习建议</text>
+          <view class="welcome-tips">
+            <view class="tip-item">💡 算法问题</view>
+            <view class="tip-item">💡 数据结构</view>
+            <view class="tip-item">💡 学习方法</view>
+          </view>
+        </view>
+
+        <view class="chat-messages">
+          <view
+            class="message-item {{item.type}}"
+            wx:for="{{aiChatHistory}}"
+            wx:key="index">
+            <view wx:if="{{item.type === 'ai'}}" class="message-avatar ai-avatar-small">
+              <image src="/images/tab_homework.png"></image>
+            </view>
+            <view class="message-bubble {{item.type}}">
+              <text class="message-text">{{item.content}}</text>
+              <text class="message-time">{{item.time}}</text>
+            </view>
+            <view wx:if="{{item.type === 'user'}}" class="message-avatar user-avatar-small">我</view>
+          </view>
+        </view>
+
+        <!-- 加载中 -->
+        <view class="ai-loading" wx:if="{{aiLoading}}">
+          <view class="typing-dots">
+            <view class="dot"></view>
+            <view class="dot"></view>
+            <view class="dot"></view>
+          </view>
+          <text class="loading-text">AI正在思考...</text>
+        </view>
+      </scroll-view>
+
+      <!-- 输入区域 -->
+      <view class="ai-input-area">
+        <view class="ai-input-box">
+          <input
+            class="ai-message-input"
+            placeholder="请输入您的问题..."
+            value="{{aiInput}}"
+            bindinput="onAIInput"
+            bindconfirm="sendAIMessage"
+            maxlength="500" />
+          <button
+            class="ai-send-btn {{aiLoading || !aiInput ? 'disabled' : ''}}"
+            bindtap="sendAIMessage"
+            disabled="{{aiLoading || !aiInput}}">
+            发送
+          </button>
+        </view>
       </view>
     </view>
   </view>

@@ -1,103 +1,144 @@
 <!--index.wxml-->
 <view class="container">
-  <!-- 顶部欢迎区域 -->
-  <view class="header">
-    <view class="welcome-text">
+  <!-- 顶部Banner -->
+  <view class="banner">
+    <view class="banner-content">
+      <view class="welcome-badge">🎓</view>
       <text class="welcome-title">欢迎使用课程助教</text>
-      <text class="welcome-subtitle">专业的教学辅助工具</text>
+      <text class="welcome-subtitle">开放式智能学习平台</text>
     </view>
-    <image class="logo" src="/images/logo.png" mode="aspectFit"></image>
+    <view class="banner-decoration"></view>
   </view>
 
-  <!-- 登录状态区域 -->
-  <view class="login-section" wx:if="{{!isLogin}}">
-    <view class="login-card">
-      <text class="login-title">请选择身份登录</text>
-      <view class="role-buttons">
-        <button class="role-btn teacher-btn" bindtap="loginAsTeacher">
-          <image class="role-icon" src="/images/teacher.png"></image>
-          <text class="role-text">教师登录</text>
-        </button>
-        <button class="role-btn student-btn" bindtap="loginAsStudent">
-          <image class="role-icon" src="/images/student.png"></image>
-          <text class="role-text">学生登录</text>
-        </button>
+  <!-- 学习数据统计 -->
+  <view class="stats-section">
+    <view class="stats-card">
+      <view class="stats-header">
+        <text class="stats-title">学习概览</text>
+        <view class="stats-icon">📊</view>
       </view>
-    </view>
-  </view>
-
-  <!-- 已登录状态区域 -->
-  <view class="logged-in-section" wx:if="{{isLogin}}">
-    <!-- 用户信息卡片 -->
-    <view class="user-card">
-      <view class="user-info">
-        <image class="avatar" src="{{userInfo.avatar || '/images/default_avatar.png'}}"></image>
-        <view class="user-details">
-          <text class="username">{{userInfo.name}}</text>
-          <text class="role">{{userInfo.role === 'teacher' ? '教师' : '学生'}}</text>
+      <view class="stats-row">
+        <view class="stat-item">
+          <view class="stat-icon-box course-icon">📚</view>
+          <text class="stat-value">{{stats.courseCount}}</text>
+          <text class="stat-label">课程数</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-icon-box homework-icon">✏️</view>
+          <text class="stat-value">{{stats.homeworkCount}}</text>
+          <text class="stat-label">作业数</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-icon-box completed-icon">✅</view>
+          <text class="stat-value">{{stats.completedCount}}</text>
+          <text class="stat-label">已完成</text>
         </view>
       </view>
-      <button class="logout-btn" bindtap="logout">退出登录</button>
     </view>
+  </view>
 
-    <!-- 功能卡片 -->
+  <!-- 最近学习 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <view class="section-title-box">
+        <text class="section-icon">📖</text>
+        <text class="section-title">最近学习</text>
+      </view>
+      <text class="more-link" bindtap="navigateToCourse">查看全部 →</text>
+    </view>
+    <scroll-view class="course-list" scroll-x="true" show-scrollbar="{{false}}">
+      <view class="course-item" wx:for="{{recentCourses}}" wx:key="id" bindtap="navigateToCourse" data-id="{{item.id}}">
+        <view class="course-cover-box">
+          <image class="course-cover" src="{{item.cover}}" mode="aspectFill"></image>
+          <view class="course-progress-overlay">
+            <text class="progress-badge">{{item.progress}}%</text>
+          </view>
+        </view>
+        <view class="course-info">
+          <text class="course-name">{{item.name}}</text>
+          <view class="course-meta">
+            <text class="meta-tag">进行中</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 快捷功能 -->
+  <view class="features-section">
+    <view class="section-header">
+      <view class="section-title-box">
+        <text class="section-icon">⚡</text>
+        <text class="section-title">快捷功能</text>
+      </view>
+    </view>
     <view class="feature-grid">
-      <navigator class="feature-card" url="/pages/course/course" wx:if="{{userInfo.role === 'teacher'}}">
-        <image class="feature-icon" src="/images/course_icon.png"></image>
-        <text class="feature-title">课程管理</text>
-        <text class="feature-desc">管理您的课程信息</text>
-      </navigator>
-
-      <navigator class="feature-card" url="/pages/student/student" wx:if="{{userInfo.role === 'teacher'}}">
-        <image class="feature-icon" src="/images/student_icon.png"></image>
-        <text class="feature-title">学生管理</text>
-        <text class="feature-desc">查看和管理学生信息</text>
-      </navigator>
-
-      <navigator class="feature-card" url="/pages/homework/homework">
-        <image class="feature-icon" src="/images/homework_icon.png"></image>
-        <text class="feature-title">作业管理</text>
-        <text class="feature-desc">{{userInfo.role === 'teacher' ? '发布和管理作业' : '查看和提交作业'}}</text>
-      </navigator>
-
-      <navigator class="feature-card" url="/pages/grade/grade">
-        <image class="feature-icon" src="/images/grade_icon.png"></image>
-        <text class="feature-title">成绩统计</text>
-        <text class="feature-desc">{{userInfo.role === 'teacher' ? '录入和查看成绩' : '查看个人成绩'}}</text>
-      </navigator>
-
-      <navigator class="feature-card" url="/pages/notice/notice">
-        <image class="feature-icon" src="/images/notice_icon.png"></image>
-        <text class="feature-title">通知公告</text>
-        <text class="feature-desc">查看最新通知</text>
-      </navigator>
-
-      <navigator class="feature-card" url="/pages/profile/profile">
-        <image class="feature-icon" src="/images/profile_icon.png"></image>
-        <text class="feature-title">个人中心</text>
-        <text class="feature-desc">个人信息设置</text>
-      </navigator>
-    </view>
-
-    <!-- 数据统计卡片 -->
-    <view class="stats-section" wx:if="{{userInfo.role === 'teacher'}}">
-      <view class="stats-card">
-        <text class="stats-title">今日数据</text>
-        <view class="stats-row">
-          <view class="stat-item">
-            <text class="stat-value">{{stats.courseCount || 0}}</text>
-            <text class="stat-label">课程数</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-value">{{stats.studentCount || 0}}</text>
-            <text class="stat-label">学生数</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-value">{{stats.homeworkCount || 0}}</text>
-            <text class="stat-label">作业数</text>
-          </view>
+      <view class="feature-card" bindtap="navigateToCourse">
+        <view class="feature-icon-wrapper course-feature">
+          <image class="feature-icon" src="/images/tab_course_active.png"></image>
         </view>
+        <text class="feature-title">课程资源</text>
+        <text class="feature-desc">浏览学习资料</text>
+      </view>
+
+      <view class="feature-card" bindtap="navigateToHomework">
+        <view class="feature-icon-wrapper homework-feature">
+          <image class="feature-icon" src="/images/tab_homework_active.png"></image>
+        </view>
+        <text class="feature-title">作业练习</text>
+        <text class="feature-desc">完成课程作业</text>
+      </view>
+
+      <view class="feature-card" bindtap="navigateToNotice">
+        <view class="feature-icon-wrapper notice-feature">
+          <image class="feature-icon" src="/images/tab_notice_active.png"></image>
+        </view>
+        <text class="feature-title">学习问答</text>
+        <text class="feature-desc">交流学习问题</text>
+      </view>
+
+      <view class="feature-card" bindtap="navigateToGrade">
+        <view class="feature-icon-wrapper grade-feature">
+          <image class="feature-icon" src="/images/tab_grade_active.png"></image>
+        </view>
+        <text class="feature-title">学习统计</text>
+        <text class="feature-desc">查看学习进度</text>
       </view>
     </view>
+  </view>
+
+  <!-- 教师管理入口 -->
+  <view class="teacher-section">
+    <view class="teacher-card">
+      <view class="teacher-header">
+        <view class="teacher-icon">{{isTeacher ? '👨‍🏫' : '👨‍🎓'}}</view>
+        <view class="teacher-info">
+          <text class="teacher-status">{{isTeacher ? '教师模式' : '学习模式'}}</text>
+          <text class="teacher-desc">{{isTeacher ? '可以管理和维护课程资料' : '切换到教师模式可管理课程'}}</text>
+        </view>
+      </view>
+      <view class="teacher-actions">
+        <button
+          class="teacher-mode-btn {{isTeacher ? 'active' : ''}}"
+          bindtap="toggleTeacherMode"
+        >
+          {{isTeacher ? '退出教师模式' : '进入教师模式'}}
+        </button>
+        <button wx:if="{{isTeacher}}" class="manage-btn" bindtap="navigateToCourseManage">
+          管理课程
+        </button>
+        <button wx:if="{{isTeacher}}" class="manage-btn" bindtap="navigateToHomeworkManage">
+          管理作业
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="footer-tip">
+    <text class="tip-text">💡 点击上方功能开始学习之旅</text>
   </view>
 </view>
+

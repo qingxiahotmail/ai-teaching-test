@@ -1,0 +1,137 @@
+<!-- homework-manage.wxml -->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <text class="title">作业管理</text>
+    <button wx:if="{{isTeacher}}" class="add-btn" catchtap="showAddHomeworkModal">
+      + 添加作业
+    </button>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <input
+      class="search-input"
+      placeholder="搜索作业..."
+      bindinput="onSearchInput"
+      confirm-type="search"
+    />
+  </view>
+
+  <!-- 作业列表 -->
+  <view class="homework-list">
+    <view
+      class="homework-card"
+      wx:for="{{homeworks}}"
+      wx:key="id"
+    >
+      <!-- 作业头部 -->
+      <view class="hw-header">
+        <view class="hw-info">
+          <text class="hw-title">{{item.title}}</text>
+          <view class="hw-meta">
+            <text class="course-badge">{{item.courseName}}</text>
+            <text class="deadline">截止：{{item.deadline}}</text>
+          </view>
+        </view>
+        <view wx:if="{{isTeacher}}" class="hw-actions">
+          <text class="action-btn edit-btn" catchtap="editHomework" data-homework="{{item}}">编辑</text>
+          <text class="action-btn delete-btn" catchtap="deleteHomework" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+
+      <!-- 作业描述 -->
+      <text class="hw-desc">{{item.description}}</text>
+
+      <!-- 状态栏 -->
+      <view class="hw-status-bar">
+        <view class="status-dot {{item.status}}"></view>
+        <text class="status-text {{item.status}}">
+          {{item.status === 'active' ? '进行中' : (item.status === 'expired' ? '已截止' : '已归档')}}
+        </text>
+        <switch wx:if="{{isTeacher}}"
+          class="status-switch"
+          checked="{{item.status !== 'archived'}}"
+          catchchange="toggleStatus"
+          data-id="{{item.id}}"
+          color="#1890ff"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{homeworks.length === 0}}" class="empty-state">
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">暂无作业</text>
+  </view>
+
+  <!-- 添加/编辑模态框 -->
+  <view wx:if="{{showAddModal}}" class="modal-overlay" catchtap="hideModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{editingHomework ? '编辑作业' : '添加作业'}}</text>
+        <text class="modal-close" catchtap="hideModal">×</text>
+      </view>
+
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">作业标题 *</text>
+          <input
+            class="form-input"
+            placeholder="请输入作业标题"
+            data-field="title"
+            bindinput="onFormInput"
+            placeholder-style="color: #999"
+          />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">所属课程 *</text>
+          <picker
+            mode="selector"
+            range="{{courses}}"
+            bindchange="onCourseChange"
+          >
+            <view class="picker">
+              {{formData.courseName || '请选择课程'}}
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">截止日期 *</text>
+          <picker
+            mode="date"
+            value="{{formData.deadline}}"
+            bindchange="onDateChange"
+            data-field="deadline"
+          >
+            <view class="picker">
+              {{formData.deadline || '请选择日期'}}
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">作业描述 *</text>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入作业描述"
+            maxlength="300"
+            data-field="description"
+            bindinput="onFormInput"
+            placeholder-style="color: #999"
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" catchtap="hideModal">取消</button>
+        <button class="modal-btn confirm-btn" catchtap="saveHomework">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

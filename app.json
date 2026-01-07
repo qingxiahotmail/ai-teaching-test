@@ -1,12 +1,12 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/student/student",
     "pages/course/course", 
     "pages/homework/homework",
-    "pages/grade/grade",
     "pages/notice/notice",
-    "pages/profile/profile"
+    "pages/grade/grade",
+    "pages/course-manage/course-manage",
+    "pages/homework-manage/homework-manage"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -15,6 +15,7 @@
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f5f5f5"
   },
+  "cloud": true,
   "tabBar": {
     "color": "#666666",
     "selectedColor": "#1890ff",
@@ -40,10 +41,10 @@
         "selectedIconPath": "images/tab_homework_active.png"
       },
       {
-        "pagePath": "pages/profile/profile",
-        "text": "我的",
-        "iconPath": "images/tab_profile.png",
-        "selectedIconPath": "images/tab_profile_active.png"
+        "pagePath": "pages/notice/notice",
+        "text": "问答",
+        "iconPath": "images/tab_notice.png",
+        "selectedIconPath": "images/tab_notice_active.png"
       }
     ]
   },
@@ -51,5 +52,5 @@
     "request": 10000,
     "downloadFile": 10000
   },
-  "debug": true
+  "debug": false
 }

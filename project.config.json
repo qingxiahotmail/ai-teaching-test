@@ -1,81 +1,77 @@
 {
-  "description": "课程助教微信小程序",
-  "packOptions": {
-    "ignore": [
-      {
-        "value": ".eslintrc.js",
-        "type": "file"
-      }
-    ],
-    "include": []
-  },
-  "setting": {
-    "urlCheck": false,
-    "es6": true,
-    "enhance": false,
-    "postcss": false,
-    "preloadBackgroundData": false,
-    "minified": false,
-    "newFeature": false,
-    "coverView": true,
-    "nodeModules": false,
-    "autoAudits": false,
-    "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
-    "uglifyFileName": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": false,
-    "compileHotReLoad": false,
-    "lazyloadPlaceholderEnable": false,
-    "useMultiFrameRuntime": true,
-    "useApiHook": true,
-    "useApiHostProcess": true,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
+    "description": "课程助教微信小程序",
+    "packOptions": {
+        "ignore": [],
+        "include": []
     },
-    "compileWorklet": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": false,
-    "minifyWXML": false,
-    "localPlugins": false,
-    "disableUseStrict": false,
-    "useCompilerPlugins": false,
-    "condition": false,
-    "swc": false,
-    "disableSWC": true,
-    "ignoreDevFiles": true,
-    "ignoreUploadUnusedFiles": true
-  },
-  "compileType": "miniprogram",
-  "libVersion": "2.19.4",
-  "appid": "wx804490de1f04dd56",
-  "projectname": "课程助教",
-  "isGameTourist": false,
-  "simulatorType": "wechat",
-  "simulatorPluginLibVersion": {},
-  "condition": {
-    "search": {
-      "list": []
+    "cloudfunctionRoot": "cloudfunctions/",
+    "setting": {
+        "urlCheck": false,
+        "es6": true,
+        "enhance": false,
+        "postcss": false,
+        "preloadBackgroundData": false,
+        "minified": false,
+        "newFeature": false,
+        "coverView": true,
+        "nodeModules": false,
+        "autoAudits": false,
+        "showShadowRootInWxmlPanel": true,
+        "scopeDataCheck": false,
+        "uglifyFileName": false,
+        "checkInvalidKey": true,
+        "checkSiteMap": true,
+        "uploadWithSourceMap": false,
+        "compileHotReLoad": false,
+        "lazyloadPlaceholderEnable": false,
+        "useMultiFrameRuntime": true,
+        "useApiHook": true,
+        "useApiHostProcess": true,
+        "babelSetting": {
+            "ignore": [],
+            "disablePlugins": [],
+            "outputPath": ""
+        },
+        "compileWorklet": false,
+        "packNpmManually": false,
+        "packNpmRelationList": [],
+        "minifyWXSS": false,
+        "minifyWXML": false,
+        "localPlugins": false,
+        "disableUseStrict": false,
+        "useCompilerPlugins": false,
+        "condition": false,
+        "swc": false,
+        "disableSWC": true,
+        "ignoreDevFiles": true,
+        "ignoreUploadUnusedFiles": true
     },
-    "conversation": {
-      "list": []
+    "compileType": "miniprogram",
+    "libVersion": "3.11.2",
+    "appid": "wx76bf391bb0b86609",
+    "projectname": "课程助教",
+    "isGameTourist": false,
+    "simulatorType": "wechat",
+    "simulatorPluginLibVersion": {},
+    "condition": {
+        "search": {
+            "list": []
+        },
+        "conversation": {
+            "list": []
+        },
+        "game": {
+            "list": []
+        },
+        "plugin": {
+            "list": []
+        },
+        "gamePlugin": {
+            "list": []
+        },
+        "miniprogram": {
+            "list": []
+        }
     },
-    "game": {
-      "list": []
-    },
-    "plugin": {
-      "list": []
-    },
-    "gamePlugin": {
-      "list": []
-    },
-    "miniprogram": {
-      "list": []
-    }
-  },
-  "editorSetting": {}
+    "editorSetting": {}
 }

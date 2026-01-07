@@ -34,19 +34,39 @@
         <text class="course-name">{{item.name}}</text>
         <text class="course-code">{{item.code}}</text>
       </view>
-      
+
       <view class="course-info">
         <view class="info-item">
-          <image class="info-icon" src="/images/calendar.png"></image>
+          <text class="info-icon">📅</text>
           <text>{{item.semester}} {{item.year}}</text>
         </view>
         <view class="info-item">
-          <image class="info-icon" src="/images/class.png"></image>
+          <text class="info-icon">👥</text>
           <text>{{item.studentCount}} 名学生</text>
         </view>
         <view class="info-item">
-          <image class="info-icon" src="/images/time.png"></image>
-          <text>{{item.schedule}}</text>
+          <text class="info-icon">📊</text>
+          <text>{{item.materialsCount || 0}} 份资料</text>
+        </view>
+      </view>
+
+      <!-- 课程资料列表 -->
+      <view class="course-materials" wx:if="{{item.materials && item.materials.length > 0}}">
+        <view class="materials-title">
+          <text>课程资料</text>
+        </view>
+        <view class="materials-items">
+          <view
+            class="material-item-small"
+            wx:for="{{item.materials}}"
+            wx:for-item="material"
+            wx:key="id"
+            bindtap="openMaterialLink"
+            data-material="{{material}}"
+          >
+            <text class="material-icon-small">{{material.url ? '🔗' : '📄'}}</text>
+            <text class="material-name-small">{{material.name}}</text>
+          </view>
         </view>
       </view>
 
@@ -63,7 +83,7 @@
         <button class="action-btn delete-btn" bindtap="deleteCourse" data-id="{{item.id}}">删除</button>
         <button class="action-btn detail-btn" bindtap="viewCourseDetail" data-id="{{item.id}}">详情</button>
       </view>
-      
+
       <view class="action-buttons" wx:if="{{userInfo.role === 'student'}}">
         <button class="action-btn detail-btn" bindtap="viewCourseDetail" data-id="{{item.id}}">查看详情</button>
       </view>

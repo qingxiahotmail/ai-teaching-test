@@ -1,9 +1,6 @@
 // homework.js
-const app = getApp()
-
 Page({
   data: {
-    userInfo: null,
     homeworks: [],
     filteredHomeworks: [],
     searchKeyword: '',
@@ -22,25 +19,48 @@ Page({
       description: ''
     },
     courseOptions: ['全部课程', '计算机科学导论', '数据结构与算法', '软件工程'],
-    statusOptions: ['全部状态', '未提交', '已提交', '已截止']
+    statusOptions: ['全部状态', '未完成', '已完成', '已截止']
   },
 
   onLoad() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
     this.loadHomeworks()
   },
 
   onShow() {
-    this.setData({
-      userInfo: app.globalData.userInfo
-    })
+    this.loadHomeworks()
   },
 
   // 加载作业数据
   loadHomeworks() {
-    // 模拟作业数据
+    // 从本地存储读取作业数据
+    try {
+      const savedHomeworks = wx.getStorageSync('homeworks')
+      if (savedHomeworks && savedHomeworks.length > 0) {
+        // 转换数据格式以适配作业页面
+        const convertedHomeworks = savedHomeworks.map(hw => ({
+          id: hw.id.toString(),
+          title: hw.title,
+          courseName: hw.courseName,
+          courseId: '1',
+          publishTime: hw.createTime,
+          deadline: hw.deadline,
+          submitFormat: '文档',
+          description: hw.description,
+          isCompleted: false,
+          isOverdue: hw.status === 'expired'
+        }))
+
+        this.setData({
+          homeworks: convertedHomeworks,
+          filteredHomeworks: convertedHomeworks
+        })
+        return
+      }
+    } catch (e) {
+      console.error('读取作业数据失败:', e)
+    }
+
+    // 使用默认数据
     const mockHomeworks = [
       {
         id: '1',
@@ -51,10 +71,8 @@ Page({
         deadline: '2024-09-15',
         submitFormat: 'PDF文档',
         description: '完成基础的程序设计练习，包括变量、条件语句和循环结构的使用。',
-        submittedCount: 45,
-        totalStudents: 60,
-        isSubmitted: false,
-        status: 'pending'
+        isCompleted: false,
+        isOverdue: false
       },
       {
         id: '2',
@@ -65,10 +83,8 @@ Page({
         deadline: '2024-09-25',
         submitFormat: '源代码压缩包',
         description: '实现链表、栈和队列等基本数据结构，并编写测试用例。',
-        submittedCount: 30,
-        totalStudents: 45,
-        isSubmitted: true,
-        status: 'submitted'
+        isCompleted: true,
+        isOverdue: false
       },
       {
         id: '3',
@@ -79,10 +95,8 @@ Page({
         deadline: '2024-08-30',
         submitFormat: 'Word文档',
         description: '选择一个软件项目，完成需求分析报告的编写。',
-        submittedCount: 48,
-        totalStudents: 50,
-        isSubmitted: false,
-        status: 'overdue'
+        isCompleted: false,
+        isOverdue: true
       }
     ]
 
@@ -141,12 +155,12 @@ Page({
       
       // 状态筛选
       let matchStatus = selectedStatus === ''
-      if (selectedStatus === '未提交') {
-        matchStatus = homework.status === 'pending'
-      } else if (selectedStatus === '已提交') {
-        matchStatus = homework.status === 'submitted'
+      if (selectedStatus === '未完成') {
+        matchStatus = !homework.isCompleted && !homework.isOverdue
+      } else if (selectedStatus === '已完成') {
+        matchStatus = homework.isCompleted
       } else if (selectedStatus === '已截止') {
-        matchStatus = homework.status === 'overdue'
+        matchStatus = homework.isOverdue
       }
       
       return matchSearch && matchCourse && matchStatus
@@ -159,20 +173,23 @@ Page({
 
   // 获取状态文本
   getStatusText(homework) {
-    if (this.data.userInfo.role === 'teacher') {
-      return homework.status === 'pending' ? '进行中' : 
-             homework.status === 'submitted' ? '已截止' : '已结束'
+    if (homework.isCompleted) {
+      return '已完成'
+    } else if (homework.isOverdue) {
+      return '已截止'
     } else {
-      return homework.isSubmitted ? '已提交' : '未提交'
+      return '未完成'
     }
   },
 
   // 获取状态类名
   getStatusClass(homework) {
-    if (this.data.userInfo.role === 'teacher') {
-      return homework.status
+    if (homework.isCompleted) {
+      return 'completed'
+    } else if (homework.isOverdue) {
+      return 'overdue'
     } else {
-      return homework.isSubmitted ? 'submitted' : 'pending'
+      return 'pending'
     }
   },
 
@@ -293,10 +310,8 @@ Page({
         deadline: homeworkForm.deadlineDate,
         submitFormat: homeworkForm.submitFormat,
         description: homeworkForm.description,
-        submittedCount: 0,
-        totalStudents: 60,
-        isSubmitted: false,
-        status: 'pending'
+        isCompleted: false,
+        isOverdue: false
       }
 
       this.setData({
@@ -350,34 +365,32 @@ Page({
   },
 
   // 提交作业（学生）
-  submitHomework(e) {
+  completeHomework(e) {
     const homeworkId = e.currentTarget.dataset.id
-    
+
     wx.showModal({
-      title: '提交作业',
-      content: '确定要提交这份作业吗？提交后不可修改。',
+      title: '完成作业',
+      content: '确定要完成这份作业吗？',
       success: (res) => {
         if (res.confirm) {
-          // 模拟提交作业
           const updatedHomeworks = this.data.homeworks.map(homework => {
             if (homework.id === homeworkId) {
               return {
                 ...homework,
-                isSubmitted: true,
-                status: 'submitted'
+                isCompleted: true
               }
             }
             return homework
           })
-          
+
           this.setData({
             homeworks: updatedHomeworks
           })
-          
+
           this.filterHomeworks()
-          
+
           wx.showToast({
-            title: '提交成功',
+            title: '完成成功',
             icon: 'success'
           })
         }

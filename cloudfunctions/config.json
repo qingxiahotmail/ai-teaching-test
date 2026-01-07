@@ -1,0 +1,12 @@
+{
+  "envId": "",
+  "traceUser": true,
+  "framework": {
+    "name": "adapters",
+    "plugins": {}
+  },
+  "plugins": {},
+  "functionRoot": "./cloudfunctions/",
+  "storageRoot": "./cloudstorage/",
+  "dbRoot": "./clouddatabase/"
+}
