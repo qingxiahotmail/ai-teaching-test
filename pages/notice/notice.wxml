@@ -34,7 +34,7 @@
   </view>
 
   <!-- 发布通知按钮（教师） -->
-  <view class="add-notice-section" wx:if="{{userInfo.role === 'teacher'}}">
+  <view class="add-notice-section" wx:if="{{isTeacher}}">
     <button class="add-notice-btn" bindtap="showAddNoticeModal">
       <image class="add-icon" src="/images/add.png"></image>
       <text>发布新通知</text>
@@ -71,7 +71,7 @@
         </view>
         
         <!-- 操作按钮（教师） -->
-        <view class="action-buttons" wx:if="{{userInfo.role === 'teacher'}}">
+        <view class="action-buttons" wx:if="{{isTeacher}}">
           <button class="action-btn edit-btn" bindtap="editNotice" data-notice="{{item}}" catchtap="">编辑</button>
           <button class="action-btn delete-btn" bindtap="deleteNotice" data-id="{{item.id}}" catchtap="">删除</button>
         </view>
@@ -83,11 +83,11 @@
   <view class="empty-state" wx:if="{{filteredNotices.length === 0}}">
     <image class="empty-icon" src="/images/empty_notice.png"></image>
     <text class="empty-text">暂无通知</text>
-    <text class="empty-subtext">{{userInfo.role === 'teacher' ? '点击上方按钮发布新通知' : '暂无新通知'}}</text>
+    <text class="empty-subtext">{{isTeacher ? '点击上方按钮发布新通知' : '暂无新通知'}}</text>
   </view>
 
   <!-- 发布/编辑通知模态框 -->
-  <view class="modal {{showNoticeModal ? 'show' : ''}}" wx:if="{{userInfo.role === 'teacher'}}">
+  <view class="modal {{showNoticeModal ? 'show' : ''}}" wx:if="{{isTeacher}}">
     <view class="modal-content">
       <view class="modal-header">
         <text class="modal-title">{{editingNotice ? '编辑通知' : '发布通知'}}</text>

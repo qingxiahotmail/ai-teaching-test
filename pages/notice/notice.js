@@ -1,4 +1,6 @@
 // notice.js
+const app = getApp()
+
 Page({
   data: {
     notices: [],
@@ -8,6 +10,7 @@ Page({
     showNoticeModal: false,
     showAIModal: false,
     editingNotice: null,
+    isTeacher: false,
     noticeForm: {
       title: '',
       type: '',
@@ -26,16 +29,33 @@ Page({
 
   onLoad() {
     this.loadNotices()
+    this.updateTeacherStatus()
   },
 
   onShow() {
     this.loadNotices()
+    this.updateTeacherStatus()
   },
 
-  // 加载通知数据
+  // 更新教师状态
+  updateTeacherStatus() {
+    try {
+      const isTeacher = app.checkTeacherMode ? app.checkTeacherMode() : false
+      console.log('问答页面教师状态:', isTeacher)
+      this.setData({ isTeacher })
+    } catch (e) {
+      console.error('更新教师状态失败:', e)
+      this.setData({ isTeacher: false })
+    }
+  },
+
+  // 加载通知数据（从本地存储）
   loadNotices() {
-    // 模拟通知数据
-    const mockNotices = [
+    // 从本地存储获取通知数据
+    const savedNotices = wx.getStorageSync('notices')
+
+    // 如果本地没有数据，使用初始示例数据
+    const initialNotices = [
       {
         id: '1',
         title: '如何理解算法的时间复杂度？',
@@ -78,10 +98,22 @@ Page({
       }
     ]
 
+    const notices = savedNotices || initialNotices
+
+    // 如果是首次使用，保存初始数据到本地
+    if (!savedNotices) {
+      wx.setStorageSync('notices', initialNotices)
+    }
+
     this.setData({
-      notices: mockNotices,
-      filteredNotices: mockNotices
+      notices: notices,
+      filteredNotices: notices
     })
+  },
+
+  // 保存通知数据到本地存储
+  saveNoticesToStorage() {
+    wx.setStorageSync('notices', this.data.notices)
   },
 
   // 获取类型文本
@@ -145,7 +177,7 @@ Page({
   viewNoticeDetail(e) {
     const noticeId = e.currentTarget.dataset.id
     const notice = this.data.notices.find(n => n.id === noticeId)
-    
+
     if (notice && !notice.isRead) {
       // 标记为已读
       const updatedNotices = this.data.notices.map(n => {
@@ -154,14 +186,17 @@ Page({
         }
         return n
       })
-      
+
       this.setData({
         notices: updatedNotices
       })
-      
+
+      // 保存到本地存储
+      this.saveNoticesToStorage()
+
       this.filterNotices()
     }
-    
+
     // 显示通知详情
     wx.showModal({
       title: notice.title,
@@ -326,6 +361,9 @@ Page({
       })
     }
 
+    // 保存到本地存储
+    this.saveNoticesToStorage()
+
     this.hideNoticeModal()
     this.filterNotices()
   },
@@ -333,20 +371,23 @@ Page({
   // 删除通知
   deleteNotice(e) {
     const noticeId = e.currentTarget.dataset.id
-    
+
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个通知吗？此操作不可撤销。',
       success: (res) => {
         if (res.confirm) {
           const updatedNotices = this.data.notices.filter(notice => notice.id !== noticeId)
-          
+
           this.setData({
             notices: updatedNotices
           })
-          
+
+          // 保存到本地存储
+          this.saveNoticesToStorage()
+
           this.filterNotices()
-          
+
           wx.showToast({
             title: '删除成功',
             icon: 'success'
@@ -457,6 +498,29 @@ Page({
           })
           wx.showToast({
             title: '已清空',
+            icon: 'success'
+          })
+        }
+      }
+    })
+  },
+
+  // 清空所有通知（管理员功能）
+  clearAllNotices() {
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空所有通知吗？此操作不可撤销。',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            notices: [],
+            filteredNotices: []
+          })
+
+          wx.removeStorageSync('notices')
+
+          wx.showToast({
+            title: '已清空所有通知',
             icon: 'success'
           })
         }
