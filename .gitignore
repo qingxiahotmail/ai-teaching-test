@@ -12,3 +12,12 @@ $RECYCLE.BIN/
 
 # Node.js
 node_modules/
+
+# WeChat Mini Program - Private Configuration
+project.private.config.json
+
+# Sensitive Data
+*.secret
+*.key
+.env
+.env.local
