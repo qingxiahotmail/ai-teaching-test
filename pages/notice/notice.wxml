@@ -36,7 +36,7 @@
   <!-- 发布通知按钮（教师） -->
   <view class="add-notice-section" wx:if="{{isTeacher}}">
     <button class="add-notice-btn" bindtap="showAddNoticeModal">
-      <image class="add-icon" src="/images/add.png"></image>
+      <image class="add-icon" src="../../images/add.png"></image>
       <text>发布新通知</text>
     </button>
   </view>
@@ -65,7 +65,7 @@
       <!-- 通知来源 -->
       <view class="notice-footer">
         <view class="notice-source">
-          <image class="source-icon" src="/images/sender.png"></image>
+          <image class="source-icon" src="../../images/sender.png"></image>
           <text class="source-text">发布者：{{item.sender}}</text>
           <text class="course-name" wx:if="{{item.courseName}}"> - {{item.courseName}}</text>
         </view>
@@ -81,7 +81,7 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{filteredNotices.length === 0}}">
-    <image class="empty-icon" src="/images/empty_notice.png"></image>
+    <image class="empty-icon" src="../../images/empty_notice.png"></image>
     <text class="empty-text">暂无通知</text>
     <text class="empty-subtext">{{isTeacher ? '点击上方按钮发布新通知' : '暂无新通知'}}</text>
   </view>

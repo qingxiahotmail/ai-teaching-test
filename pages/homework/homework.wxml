@@ -27,7 +27,7 @@
   <!-- 添加作业按钮（教师） -->
   <view class="add-homework-section" wx:if="{{userInfo.role === 'teacher'}}">
     <button class="add-homework-btn" bindtap="showAddHomeworkModal">
-      <image class="add-icon" src="/images/add.png"></image>
+      <image class="add-icon" src="../../images/add.png"></image>
       <text>发布新作业</text>
     </button>
   </view>
